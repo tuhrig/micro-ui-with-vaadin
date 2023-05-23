@@ -36,3 +36,12 @@ out/
 
 ### VS Code ###
 .vscode/
+
+node_modules/
+**/target/**
+**/frontend/**
+vite.generated.ts
+pnpmfile.js
+.pnpmfile.cjs
+.npmrc
+pnpm-lock.yaml
