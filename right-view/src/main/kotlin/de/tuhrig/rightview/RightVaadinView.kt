@@ -4,9 +4,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.vaadin.flow.component.ClientCallable
 import com.vaadin.flow.component.Html
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
+import com.vaadin.flow.router.OptionalParameter
 import com.vaadin.flow.router.Route
 import org.slf4j.LoggerFactory
 
@@ -35,6 +37,10 @@ class RightVaadinView : VerticalLayout(), HasUrlParameter<String?> {
         """.trimIndent(), element)
     }
 
+    private fun setUrlPathTo(path: String) {
+        UI.getCurrent().page.history.pushState(null, path)
+    }
+
     @ClientCallable
     fun receiveFrontendEvent(event: String) {
         log.info("Right-View received event from frontend: {}", event)
@@ -42,11 +48,11 @@ class RightVaadinView : VerticalLayout(), HasUrlParameter<String?> {
         val language = languageSelectedEvent.language
         val info = infos.entries.find { it.key == language }?.value
         infoBox.setHtmlContent("<div>$info</div>")
+        setUrlPathTo("/languages/$language")
     }
 
-    override fun setParameter(event: BeforeEvent, parameter: String?) {
-        if (!parameter.isNullOrBlank()) {
-            val language = parameter.trim()
+    override fun setParameter(event: BeforeEvent, @OptionalParameter language: String?) {
+        if (!language.isNullOrBlank()) {
             val info = infos.entries.find { it.key == language }?.value
             infoBox.setHtmlContent("<div>$info</div>")
         }

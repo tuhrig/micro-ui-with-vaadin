@@ -10,6 +10,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.splitlayout.SplitLayout
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
+import com.vaadin.flow.router.OptionalParameter
 import com.vaadin.flow.router.Route
 import org.apache.commons.lang3.StringEscapeUtils
 import org.slf4j.LoggerFactory
@@ -63,9 +64,8 @@ class MainVaadinView : VerticalLayout(), HasUrlParameter<String?> {
         """.trimIndent(), element)
     }
 
-    override fun setParameter(event: BeforeEvent, parameter: String?) {
-        if (!parameter.isNullOrBlank()) {
-            val language = parameter.trim()
+    override fun setParameter(event: BeforeEvent, @OptionalParameter language: String?) {
+        if (!language.isNullOrBlank()) {
             heading.setHtmlContent("<h1>What is ${language}?</h1>")
             leftIFrame.src = "http://localhost:8081/languages/$language"
             rightIFrame.src = "http://localhost:8082/languages/$language"

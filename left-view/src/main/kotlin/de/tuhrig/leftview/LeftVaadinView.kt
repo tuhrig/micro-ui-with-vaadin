@@ -3,10 +3,12 @@ package de.tuhrig.leftview
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.vaadin.flow.component.ClientCallable
+import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.listbox.ListBox
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.router.BeforeEvent
 import com.vaadin.flow.router.HasUrlParameter
+import com.vaadin.flow.router.OptionalParameter
 import com.vaadin.flow.router.Route
 import org.apache.commons.lang3.StringEscapeUtils
 import org.slf4j.LoggerFactory
@@ -31,7 +33,8 @@ class LeftVaadinView : VerticalLayout(), HasUrlParameter<String?> {
             val languageSelectedEvent = LanguageSelectedEvent(it.value)
             val asJson = JSON.writeValueAsString(languageSelectedEvent)
             val escapedJson = StringEscapeUtils.escapeJson(asJson)
-            element.executeJs(""""
+            setUrlPathTo("/languages/${it.value}")
+            element.executeJs("""
                 window.top.postMessage("$escapedJson", "http://localhost:8080");
             """.trimIndent())
         }
@@ -45,6 +48,10 @@ class LeftVaadinView : VerticalLayout(), HasUrlParameter<String?> {
         this.add(selectLanguage)
     }
 
+    private fun setUrlPathTo(path: String) {
+        UI.getCurrent().page.history.pushState(null, path)
+    }
+
     @ClientCallable
     fun receiveFrontendEvent(event: String) {
         log.info("Right-View received event from frontend: {}", event)
@@ -53,9 +60,8 @@ class LeftVaadinView : VerticalLayout(), HasUrlParameter<String?> {
         selectLanguage.value = language
     }
 
-    override fun setParameter(event: BeforeEvent, parameter: String?) {
-        if (!parameter.isNullOrBlank()) {
-            val language = parameter.trim()
+    override fun setParameter(event: BeforeEvent, @OptionalParameter language: String?) {
+        if (!language.isNullOrBlank()) {
             selectLanguage.value = language
         }
     }
